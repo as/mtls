@@ -23,12 +23,12 @@ var twoExp128 = new(big.Int).Lsh(big.NewInt(1), 128)
 func genRSA(orderN string) (e crypto.PublicKey, d crypto.PrivateKey) {
 	n, err := strconv.Atoi(orderN)
 	if err != nil {
-		log.Fatal("genRSA: failed: orderN should be a number: have %s", orderN)
+		log.Fatalf("genRSA: failed: orderN should be a number: have %s", orderN)
 	}
 
 	p, err := rsa.GenerateKey(rand.Reader, n)
 	if err != nil {
-		log.Fatal("genRSA: failed: %s", err)
+		log.Fatalf("genRSA: failed: %s", err)
 	}
 	return &p.PublicKey, p
 }
@@ -45,11 +45,11 @@ func genEC(curve string) (crypto.PublicKey, crypto.PrivateKey) {
 	case "P521":
 		c = elliptic.P521()
 	default:
-		log.Fatal("genEC: unrecognized curve: %q", curve)
+		log.Fatalf("genEC: unrecognized curve: %q", curve)
 	}
 	p, err := ecdsa.GenerateKey(c, rand.Reader)
 	if err != nil {
-		log.Fatal("genEC: failed: %s", err)
+		log.Fatalf("genEC: failed: %s", err)
 	}
 	return &p.PublicKey, p
 }
@@ -112,7 +112,7 @@ func pad(priv interface{}) *pem.Block {
 	case *ecdsa.PrivateKey:
 		data, err := x509.MarshalECPrivateKey(k)
 		if err != nil {
-			log.Fatal("pad: failed: %s", err)
+			log.Fatalf("pad: failed: %s", err)
 		}
 		return &pem.Block{Type: "EC PRIVATE KEY", Bytes: data}
 	}
@@ -130,7 +130,7 @@ func randSN() *big.Int {
 func parsePrivK(name string, cert, key []byte) tls.Certificate {
 	c, err := tls.X509KeyPair(cert, key)
 	if err != nil {
-		log.Fatalln("parsePrivK: %q: %s", name, err)
+		log.Fatalf("parsePrivK: %q: %s", name, err)
 	}
 	return c
 }
@@ -149,14 +149,14 @@ func parsePubK(name string, cert []byte) *x509.Certificate {
 func loadPrivK(prefix string) tls.Certificate {
 	e, ok := vault[prefix]
 	if !ok {
-		log.Fatalln("loadPrivK: no entry for %q", prefix)
+		log.Fatalf("loadPrivK: no entry for %q", prefix)
 	}
 	return parsePrivK(prefix, e.cert, e.key)
 }
 func loadPubK(prefix string) *x509.Certificate {
 	e, ok := vault[prefix]
 	if !ok {
-		log.Fatalln("loadPubK: no entry for %q", prefix)
+		log.Fatalf("loadPubK: no entry for %q", prefix)
 	}
 	return parsePubK(prefix, e.cert)
 }
